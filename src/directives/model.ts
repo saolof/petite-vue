@@ -1,7 +1,15 @@
 import { Directive } from '.'
-import { listen } from '../utils'
 
 // LooseEqual
+
+const listen = (
+  el: Element,
+  event: string,
+  handler: any,
+  options?: any
+) => {
+  el.addEventListener(event, handler, options)
+}
 
 const isArray = Array.isArray
 const isDate = (val: unknown): val is Date =>
