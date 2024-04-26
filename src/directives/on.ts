@@ -1,11 +1,15 @@
 import { Directive } from '.'
-import { hyphenate } from '@vue/shared'
-import { listen } from '../utils'
 import { nextTick } from '../scheduler'
 
 // same as vue 2
 const simplePathRE =
   /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['[^']*?']|\["[^"]*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*$/
+
+const hyphenateRE = /\B([A-Z])/g
+const hyphenate = cacheStringFunction((str: string) =>
+  str.replace(hyphenateRE, '-$1').toLowerCase(),
+)
+
 
 const systemModifiers = ['ctrl', 'shift', 'alt', 'meta']
 
@@ -77,5 +81,5 @@ export const on: Directive = ({ el, get, exp, arg, modifiers }) => {
     }
   }
 
-  listen(el, arg, handler, modifiers)
+  el.addEventListener(arg, handler, modifiers)
 }
