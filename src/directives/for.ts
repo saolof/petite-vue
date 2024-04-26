@@ -1,4 +1,3 @@
-import { isArray, isObject } from '@vue/shared'
 import { Block } from '../block'
 import { evaluate } from '../eval'
 import { Context, createScopedContext } from '../context'
@@ -64,7 +63,7 @@ export const _for = (el: Element, exp: string, ctx: Context) => {
     const map: KeyToIndexMap = new Map()
     const ctxs: Context[] = []
 
-    if (isArray(source)) {
+    if (Array.isArray(source)) {
       for (let i = 0; i < source.length; i++) {
         ctxs.push(createChildContext(map, source[i], i))
       }
@@ -72,7 +71,7 @@ export const _for = (el: Element, exp: string, ctx: Context) => {
       for (let i = 0; i < source; i++) {
         ctxs.push(createChildContext(map, i + 1, i))
       }
-    } else if (isObject(source)) {
+    } else if (source !== null && typeof source === 'object') {
       let i = 0
       for (const key in source) {
         ctxs.push(createChildContext(map, source[key], i++, key))
