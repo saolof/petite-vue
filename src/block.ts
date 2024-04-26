@@ -1,6 +1,5 @@
 import { Context, createContext } from './context'
 import { walk } from './walk'
-import { remove } from '@vue/shared'
 import { stop } from '@vue/reactivity'
 
 export class Block {
@@ -68,7 +67,10 @@ export class Block {
 
   remove() {
     if (this.parentCtx) {
-      remove(this.parentCtx.blocks, this)
+      const i = this.parentCtx.blocks.indexOf(this)
+      if (i > -1) { // remove this from parent blocks
+          this.parentCtx.blocks.splice(i, 1)
+      }
     }
     if (this.start) {
       const parent = this.start.parentNode!
