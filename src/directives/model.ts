@@ -1,6 +1,76 @@
-import { isArray, looseEqual, looseIndexOf, toNumber } from '@vue/shared'
 import { Directive } from '.'
 import { listen } from '../utils'
+
+// LooseEqual
+
+const isArray = Array.isArray
+const isDate = (val: unknown): val is Date =>
+  toTypeString(val) === '[object Date]'
+const isObject = (val: unknown): val is Record<any, any> =>
+  val !== null && typeof val === 'object'
+const isSymbol = (val: unknown): val is symbol => typeof val === 'symbol'
+
+function looseCompareArrays(a: any[], b: any[]) {
+  if (a.length !== b.length) return false
+  let equal = true
+  for (let i = 0; equal && i < a.length; i++) {
+    equal = looseEqual(a[i], b[i])
+  }
+  return equal
+}
+
+function looseEqual(a: any, b: any): boolean {
+  if (a === b) return true
+  let aValidType = isDate(a)
+  let bValidType = isDate(b)
+  if (aValidType || bValidType) {
+    return aValidType && bValidType ? a.getTime() === b.getTime() : false
+  }
+  aValidType = isSymbol(a)
+  bValidType = isSymbol(b)
+  if (aValidType || bValidType) {
+    return a === b
+  }
+  aValidType = isArray(a)
+  bValidType = isArray(b)
+  if (aValidType || bValidType) {
+    return aValidType && bValidType ? looseCompareArrays(a, b) : false
+  }
+  aValidType = isObject(a)
+  bValidType = isObject(b)
+  if (aValidType || bValidType) {
+    /* istanbul ignore if: this if will probably never be called */
+    if (!aValidType || !bValidType) {
+      return false
+    }
+    const aKeysCount = Object.keys(a).length
+    const bKeysCount = Object.keys(b).length
+    if (aKeysCount !== bKeysCount) {
+      return false
+    }
+    for (const key in a) {
+      const aHasKey = a.hasOwnProperty(key)
+      const bHasKey = b.hasOwnProperty(key)
+      if (
+        (aHasKey && !bHasKey) ||
+        (!aHasKey && bHasKey) ||
+        !looseEqual(a[key], b[key])
+      ) {
+        return false
+      }
+    }
+  }
+  return String(a) === String(b)
+}
+
+function looseIndexOf(arr: any[], val: any): number {
+  return arr.findIndex(item => looseEqual(item, val))
+}
+
+
+// end of LooseEqual
+
+
 
 export const model: Directive<
   HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
